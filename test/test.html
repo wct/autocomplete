@@ -49,10 +49,16 @@
     autocomplete(input1, '/search1/:keyword1', {minLength:1})
       .label('accountName')
       .value('accountName')
-
+      .on('select', function(value, text) {
+        console.log(value, text)
+      })
     autocomplete(input2, '/search2/:keyword2', {requiredChoice:true})
       .label(function (item) { return item.accountNumber+' '+item.accountName;})
       .value('accountNumber')
+      .text('accountName')
+      .on('select', function(value, text) {
+        console.log(value, text)
+      })
 
   </script>
 </body>

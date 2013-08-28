@@ -30,7 +30,7 @@ autocomplete(document.getElementById('search'), '/search/:keyword')
 * `disabled` autocomplete is no longer listening for user input
 * `response` (res) response object after running through `autocomplete#parse`
 * `error` (err) emitted when the server responds with an error
-* `select` (value) emitted when you select an item from the autocomplete menu
+* `select` (value, text) emitted when you select an item from the autocomplete menu
 
 ## API
 
@@ -131,6 +131,15 @@ autocomplete.value(function(item) {
   return item.url;
 })
 ```
+
+### #text(key)
+
+Determines which key from the result object should be used to map to text in selection. This data will be emitted to event select ```autocomplete.on('select', function(value, text) { ... }``` text will be null if text(key) is not given.
+
+```js
+autocomplete.text('name')
+```
+
 
 ### #format(formatter)
 

@@ -15,6 +15,7 @@
     "matthewmueller/menu" : "*",
     "component/map" : "*",
     "component/to-function" : "*",
+    "component/indexof" : "*",
     "component/classes" : "*"
   },
   "development": {},

@@ -10,6 +10,7 @@ var throttle = require('throttle'),
     Menu = require('menu'),
     Emitter = require('emitter'),
     request = require('superagent'),
+    indexof = require('indexof'),
     o = require('jquery'),
     noop = function() {};
 
@@ -71,7 +72,7 @@ Emitter(Autocomplete.prototype);
 Autocomplete.prototype.enable = function() {
   this.emit('enabled');
   event.bind(this.el, 'keydown', function(e) {
-    if(e.keyCode === 9) {
+    if (e.keyCode === 9) {
       if(this.menu) this.menu.hide();
       if (this.requiredChoice && !this.requiredChoiceValid) {
         this.el.value = this.requiredChoiceItem;
@@ -170,6 +171,22 @@ Autocomplete.prototype.values = function(value) {
 };
 
 /**
+ * #text(str|func)
+ *
+ * Determines which text i paired with the selected value
+ *
+ * @param {String|Function}  value
+ * @return {Autocomplete}
+ * @api public
+ */
+
+Autocomplete.prototype.text = function(text) {
+  this._text = text;
+  return this;
+};
+
+
+/**
  * #format(format)
  *
  * Applies formatting to the label that's displayed
@@ -244,7 +261,7 @@ Autocomplete.prototype.search = function(fn) {
 Autocomplete.prototype.select = function(value) {
   this.requiredChoiceValid = true;
   this.requiredChoiceItem = value;
-  this.emit('select', value);
+  this.emit('select', value, this._text && this._texts && this._texts.length ? this._texts[indexof(this._values, value)] : null);
   return this;
 };
 
@@ -317,10 +334,14 @@ Autocomplete.prototype.respond = function(fn, query, res) {
   var el = this.el,
       labels = map(items, this._label),
       values = map(items, this._value),
+      texts = map(items, this._text),
       len = labels.length,
       menu = this.menu = this.menu || new Menu,
       format = this.formatter,
       pos = this._position(this.el);
+
+  this._values = values;
+  this._texts = texts;
 
   // Add `autocomplete` class to menu
   menu.el.addClass('autocomplete');
