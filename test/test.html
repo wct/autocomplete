@@ -24,32 +24,35 @@
       color: #4987c7;
     }
 
+    span.boldtext {
+      font-weight: bold;
+    }
+
   </style>
 </head>
 <body>
   <h1>autocomplete component</h1>
-  <input id="search" name="keyword"><br/>
-  <img id="img">
+  <p>
+    Free typing<br/>
+    <input id="search1" name="keyword1"><br/>
+  </p>
+  <p>
+    Required choice<br/>
+    <input id="search2" name="keyword2"><br/>
+  </p>
   <script src="/build/build.js" type="text/javascript"></script>
   <script type="text/javascript">
     var autocomplete = require('autocomplete'),
-        input = document.getElementById('search'),
-        img = document.getElementById('img');
+        input1 = document.getElementById('search1'),
+        input2 = document.getElementById('search2');
 
-    autocomplete(input, '/search/:keyword')
-      .labels('data.title')
-      .values('data.url')
-      .parse('data.children')
-      .format(function(label, q) {
-        var r = new RegExp('(?:' + q + ')', 'i');
-        return label.replace(r, '<span class="highlight">$&</span>');
-      })
-      .on('response', function(res) {
-        console.log(res);
-      })
-      .on('select', function(url) {
-        img.src = url;
-      })
+    autocomplete(input1, '/search1/:keyword1', {minLength:1})
+      .label('accountName')
+      .value('accountName')
+
+    autocomplete(input2, '/search2/:keyword2', {requiredChoice:true})
+      .label(function (item) { return item.accountNumber+' '+item.accountName;})
+      .value('accountNumber')
 
   </script>
 </body>

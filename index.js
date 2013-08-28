@@ -10,6 +10,7 @@ var throttle = require('throttle'),
     Menu = require('menu'),
     Emitter = require('emitter'),
     request = require('superagent'),
+    o = require('jquery'),
     noop = function() {};
 
 /**
@@ -31,10 +32,19 @@ function Autocomplete(el, url, opts) {
   this.coords = getOffset(el);
   this.url = url;
   this._display = true;
-  this.throttle = opts.throttle || 200;
+  this.throttle = opts.throttle || 50;
+  this.minLength = opts.minLength || 2;
+  this.maxItems = opts.maxItems || 10;
+  this.fixedContainer = opts.fixedContainer || false;
+  this.requiredChoice = opts.requiredChoice || false;
+  this.requiredChoiceItem = '';
+  this.requiredChoiceValid = false;
   this.throttledSearch = throttle(this.search.bind(this), this.throttle);
   this._key = el.getAttribute('name');
-  this.formatter = function(item) { return item; };
+  this.formatter = function(label, q) {
+    var r = new RegExp('(?:' + q + ')', 'i');
+    return label.replace(r, '<span class="boldtext">$&</span>');
+  };
 
   // Prevents the native autocomplete from showing up
   this.el.setAttribute('autocomplete', 'off');
@@ -60,6 +70,15 @@ Emitter(Autocomplete.prototype);
 
 Autocomplete.prototype.enable = function() {
   this.emit('enabled');
+  event.bind(this.el, 'keydown', function(e) {
+    if(e.keyCode === 9) {
+      if(this.menu) this.menu.hide();
+      if (this.requiredChoice && !this.requiredChoiceValid) {
+        this.el.value = this.requiredChoiceItem;
+        this.select(this.requiredChoiceItem);
+      }
+    }
+  }.bind(this));
   event.bind(this.el, 'keyup', this.throttledSearch);
   return this;
 };
@@ -177,7 +196,7 @@ Autocomplete.prototype.format = function(format) {
  */
 
 Autocomplete.prototype.search = function(fn) {
-  if(fn && (fn.keyCode == 13 || fn.keyCode == 27)) return this;
+  if(fn && (fn.keyCode === 9 || fn.keyCode === 13 || fn.keyCode === 16 || fn.keyCode === 27)) return this;
   else if(typeof fn !== 'function') fn = noop;
 
   if(!this._key)
@@ -189,7 +208,9 @@ Autocomplete.prototype.search = function(fn) {
       rkey = new RegExp(':' + this._key);
       query = {};
 
-  if(!val) {
+  this.requiredChoiceValid = false;
+
+  if(!val || val.length < this.minLength) {
     if(this.menu) this.menu.hide();
     return this;
   }
@@ -203,6 +224,7 @@ Autocomplete.prototype.search = function(fn) {
 
   request
     .get(url)
+    .set('max-items', this.maxItems)
     .query(query)
     .end(this.respond.bind(this, fn, this.el.value));
 
@@ -220,6 +242,8 @@ Autocomplete.prototype.search = function(fn) {
  */
 
 Autocomplete.prototype.select = function(value) {
+  this.requiredChoiceValid = true;
+  this.requiredChoiceItem = value;
   this.emit('select', value);
   return this;
 };
@@ -249,7 +273,7 @@ Autocomplete.prototype.position = function(fn) {
 Autocomplete.prototype._position = function(el) {
   var coords = getOffset(el),
       x = coords.left,
-      y = coords.top + el.offsetHeight;
+      y = coords.top + el.offsetHeight + (this.fixedContainer ? o(document).scrollTop() : 0);
 
   return { x : x, y : y };
 };
@@ -274,9 +298,12 @@ Autocomplete.prototype.respond = function(fn, query, res) {
   }
 
   var parser = toFunction(this._parse || function(obj) { return obj; }),
-      items = parser(res.body);
+      items = parser(res.body),
+      self = this;
 
   if(!isArray(items)) throw new Error('autocomplete: response is not an array');
+
+  while (items.length > this.maxItems) items.pop();
 
   this.emit('response', items);
   fn(null, items);
@@ -301,11 +328,16 @@ Autocomplete.prototype.respond = function(fn, query, res) {
   // Reset the menu
   this.menu.hide().clear().off('select');
 
+
   labels.forEach(function(label, i) {
     var value = values[i];
     menu.add(value, format(label, query));
+    if (self.requiredChoice && !i) {
+      o('.menu-item-' + value).addClass('selected');
+      self.requiredChoiceItem = value;
+    }
     menu.on(value, function() {
-      el.value = label;
+      el.value = value;
       el.focus();
     });
   });

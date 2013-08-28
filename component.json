@@ -1,13 +1,14 @@
 {
   "name": "autocomplete",
-  "repo": "matthewmueller/autocomplete",
-  "author": "Matt Mueller <mattmuelle@gmail.com>",
-  "twitter": "@mattmueller",
+  "repo": "SvenWickstrom/autocomplete",
+  "author": "Sven Wickström <sven@wct.se>",
+  "twitter": "@SvenWickstrom",
   "description": "Autocomplete component",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "keywords": ["autocomplete", "component", "ui"],
   "dependencies": {
     "matthewmueller/throttle" : "*",
+    "component/jquery": "*",
     "component/event" : "*",
     "component/emitter" : "*",
     "visionmedia/superagent" : "*",
