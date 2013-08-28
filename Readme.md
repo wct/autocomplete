@@ -3,11 +3,10 @@
 
   Autocomplete component
 
-![autocomplete](http://f.cl.ly/items/1X2L2Y3P3t2d1p411W3Y/autocomplete.png)
 
 ## Installation
 
-    $ component install matthewmueller/autocomplete
+    $ component install SvenWickstrom/autocomplete
 
 ## Example
 
@@ -20,12 +19,8 @@ autocomplete(document.getElementById('search'), '/search/:keyword')
   .parse('result')
   .label('title')
   .value('url')
-  .format(function(label, q) {
-    var r = new RegExp('(?:' + q + ')', 'i');
-    return label.replace(r, '<span class="highlight">$&</span>');
-  })
-  .on('select', function(url) {
-    img.src = url;
+  .on('select', function(data) {
+    console.log(data);
   })
 ```
 
@@ -47,7 +42,11 @@ Initialize a new `Autocomplete` instance. Pass in an `input` el, a `url` endpoin
 
 Available options include:
 
-* `throttle` : *Defaults to 500*. Throttles the user input to reduce the number of AJAX calls.
+* `throttle` : *Defaults to 50*. Throttles the user input to reduce the number of AJAX calls.
+* `minLength` : *Defaults to 1*. Minimum number of character typed for invoking the search.
+* `maxItems` : *Defaults to 10*. Maximum number of items shown in the menu. Will also send a header 'max-items' in the request for optional server side handling.
+* `fixedContainer` : *Defaults to false*. Positions the menu regardless of the body vertical scroll position if set to true.
+* `requiredChoice` : *Defaults to false*. Will pick the first shown menu item on blur if set to true.
 
 ```js
 autocomplete(el, "https://api.github.com/legacy/repos/search/:keyword")
@@ -171,7 +170,7 @@ Here's the default `fn`
 autocomplete.position(function(el) {
   var coords = getOffset(el),
       x = coords.left,
-      y = coords.top + el.offsetHeight;
+      y = coords.top + el.offsetHeight + (this.fixedContainer ? o(document).scrollTop() : 0);
 
   return { x : x, y : y };
 })
