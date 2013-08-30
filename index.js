@@ -225,10 +225,10 @@ Autocomplete.prototype.search = function(fn) {
       query = {};
 
   this.requiredChoiceValid = false;
+  this.requiredChoiceItem = '';
 
   if(!val || val.length < this.minLength) {
     if(this.menu) this.menu.hide();
-    this.requiredChoiceValid = true;
     return this;
   }
 
