@@ -45,7 +45,6 @@ Available options include:
 * `throttle` : *Defaults to 50*. Throttles the user input to reduce the number of AJAX calls.
 * `minLength` : *Defaults to 1*. Minimum number of character typed for invoking the search.
 * `maxItems` : *Defaults to 10*. Maximum number of items shown in the menu. Will also send a header 'max-items' in the request for optional server side handling.
-* `fixedContainer` : *Defaults to false*. Positions the menu regardless of the body vertical scroll position if set to true.
 * `requiredChoice` : *Defaults to false*. Will pick the first shown menu item on blur if set to true.
 
 ```js
@@ -179,7 +178,7 @@ Here's the default `fn`
 autocomplete.position(function(el) {
   var coords = getOffset(el),
       x = coords.left,
-      y = coords.top + el.offsetHeight + (this.fixedContainer ? o(document).scrollTop() : 0);
+      y = coords.top + el.offsetHeight + o(document).scrollTop();
 
   return { x : x, y : y };
 })

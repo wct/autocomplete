@@ -52,7 +52,7 @@
       .on('select', function(value, text) {
         console.log(value, text)
       })
-    autocomplete(input2, '/search2/:keyword2', {requiredChoice:true})
+    autocomplete(input2, '/search2/:keyword2', {requiredChoice:true,fixedContainer:true})
       .label(function (item) { return item.accountNumber+' '+item.accountName;})
       .value('accountNumber')
       .text('accountName')

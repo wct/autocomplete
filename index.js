@@ -36,7 +36,6 @@ function Autocomplete(el, url, opts) {
   this.throttle = opts.throttle || 50;
   this.minLength = opts.minLength || 2;
   this.maxItems = opts.maxItems || 10;
-  this.fixedContainer = opts.fixedContainer || false;
   this.requiredChoice = opts.requiredChoice || false;
   this.requiredChoiceItem = '';
   this.requiredChoiceValid = false;
@@ -290,7 +289,7 @@ Autocomplete.prototype.position = function(fn) {
 Autocomplete.prototype._position = function(el) {
   var coords = getOffset(el),
       x = coords.left,
-      y = coords.top + el.offsetHeight + (this.fixedContainer ? o(document).scrollTop() : 0);
+      y = coords.top + el.offsetHeight + o(document).scrollTop();
 
   return { x : x, y : y };
 };
