@@ -38,7 +38,7 @@ function Autocomplete(el, url, opts) {
   this.maxItems = opts.maxItems || 10;
   this.requiredChoice = opts.requiredChoice || false;
   this.requiredChoiceItem = '';
-  this.requiredChoiceValid = false;
+  this.requiredChoiceValid = true;
   this.throttledSearch = throttle(this.search.bind(this), this.throttle);
   this._key = el.getAttribute('name');
   this.formatter = function(label, q) {
@@ -228,6 +228,7 @@ Autocomplete.prototype.search = function(fn) {
 
   if(!val || val.length < this.minLength) {
     if(this.menu) this.menu.hide();
+    this.requiredChoiceValid = true;
     return this;
   }
 
