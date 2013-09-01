@@ -45,6 +45,16 @@ function Autocomplete(el, url, opts) {
     var r = new RegExp('(?:' + q + ')', 'i');
     return label.replace(r, '<span class="boldtext">$&</span>');
   };
+  this._keydown = function(e) {
+    if (e.keyCode === 9) {
+      if(this.menu) this.menu.hide();
+      if (this.requiredChoice && !this.requiredChoiceValid) {
+        this.el.value = this.requiredChoiceItem;
+        this.select(this.requiredChoiceItem);
+      }
+    }
+  };
+
 
   // Prevents the native autocomplete from showing up
   this.el.setAttribute('autocomplete', 'off');
@@ -70,16 +80,8 @@ Emitter(Autocomplete.prototype);
 
 Autocomplete.prototype.enable = function() {
   this.emit('enabled');
-  event.bind(this.el, 'keydown', function(e) {
-    if (e.keyCode === 9) {
-      if(this.menu) this.menu.hide();
-      if (this.requiredChoice && !this.requiredChoiceValid) {
-        this.el.value = this.requiredChoiceItem;
-        this.select(this.requiredChoiceItem);
-      }
-    }
-  }.bind(this));
-  event.bind(this.el, 'keyup', this.throttledSearch);
+  event.bind(this.el, 'keydown', this._keydown.bind(this));
+  event.bind(this.el, 'input', this.throttledSearch);
   return this;
 };
 
@@ -91,7 +93,8 @@ Autocomplete.prototype.enable = function() {
 
 Autocomplete.prototype.disable = function() {
   this.emit('disabled');
-  event.unbind(this.el, 'keyup', this.throttledSearch);
+  event.unbind(this.el, 'keydown', this._keydown.bind(this));
+  event.unbind(this.el, 'input', this.throttledSearch);
   return this;
 };
 
@@ -212,8 +215,12 @@ Autocomplete.prototype.format = function(format) {
  */
 
 Autocomplete.prototype.search = function(fn) {
+  /*
   if(fn && (fn.keyCode === 9 || fn.keyCode === 13 || fn.keyCode === 16 || fn.keyCode === 27)) return this;
   else if(typeof fn !== 'function') fn = noop;
+  */
+
+  if(typeof fn !== 'function') fn = noop;
 
   if(!this._key)
     throw new Error('autocomplete: no key to query on, add key in input[name] or key()');
@@ -225,7 +232,7 @@ Autocomplete.prototype.search = function(fn) {
       query = {};
 
   this.requiredChoiceValid = false;
-  this.requiredChoiceItem = '';
+  this.requiredChoiceItem = null;
 
   if(!val || val.length < this.minLength) {
     if(this.menu) this.menu.hide();
