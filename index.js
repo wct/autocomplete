@@ -53,7 +53,7 @@ function Autocomplete(el, url, opts) {
         this.select(this.requiredChoiceItem);
       }
     }
-  };
+  }; 
 
 
   // Prevents the native autocomplete from showing up
